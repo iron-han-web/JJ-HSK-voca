@@ -213,6 +213,7 @@
   if ('speechSynthesis' in window) {
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.lang = "zh-CN";
+    utterance.rate = 0.7;
     
     // voiceschanged 이벤트를 통해 음성이 준비되면 원하는 음성을 선택하도록 함.
     let voices = window.speechSynthesis.getVoices();
@@ -223,7 +224,6 @@
         const zhVoice = updatedVoices.find(v => v.lang.indexOf("zh") > -1);
         if (zhVoice) {
           utterance.voice = zhVoice;
-          utterance.rate = 0.8
         }
         window.speechSynthesis.speak(utterance);
       };
@@ -232,7 +232,6 @@
       const zhVoice = voices.find(v => v.lang.indexOf("zh") > -1);
       if (zhVoice) {
         utterance.voice = zhVoice;
-        utterance.rate = 0.8
       }
       window.speechSynthesis.speak(utterance);
     }
