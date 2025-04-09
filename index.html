@@ -510,7 +510,7 @@
       if ('speechSynthesis' in window) {
         const utterance = new SpeechSynthesisUtterance(text);
         utterance.lang = "zh-CN";
-        utterance.rate = 0.9;  // 발음 속도를 조절 (기본 1보다 약간 느리게)
+        utterance.rate = 0.7;  // 발음 속도를 조절 (기본 1보다 약간 느리게)
     
         let voices = window.speechSynthesis.getVoices();
         if (!voices || voices.length === 0) {
