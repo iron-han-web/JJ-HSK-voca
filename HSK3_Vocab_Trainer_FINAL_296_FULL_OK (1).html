@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="utf-8"/>
+  <title>HSK 단어장</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f4f4f9;
+      margin: 0;
+      padding: 20px;
+      text-align: center;
+    }
+    header {
+      margin-bottom: 20px;
+    }
+    header h1 {
+      font-size: 36px;
+      margin: 0;
+    }
+    header h2 {
+      font-size: 20px;
+      color: #666;
+      margin: 5px 0 0 0;
+    }
+    header h3 {
+      font-size: 14px;
+      color: #aaa;
+      margin: 2px 0 10px 0;
+    }
+    button {
+      padding: 10px 20px;
+      margin: 10px 5px;
+      font-size: 16px;
+      cursor: pointer;
+      border: none;
+      border-radius: 5px;
+      background-color: #007bff;
+      color: white;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    td {
+      width: 33%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      text-align: left;
+    }
+    /* 퀴즈 영역과 즐겨찾기 영역 구분 */
+    #quiz-container {
+      margin-top: 30px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>🇨🇳HSK 단어장📚</h1>
+    <h2>加油 진주❣️</h2>
+    <h3>made by 철한</h3>
+  </header>
+  <!-- 기존 기능 버튼 -->
+  <button onclick="displayWords()">단어 보기📖</button>
+  <button onclick="shuffleWords()">단어 섞기🔁</button>
+  <button onclick="showAnswers()">정답 보기💯</button>
+  <!-- 추가된 기능 버튼 -->
+  <button onclick="startQuiz()">단어 퀴즈🎯</button>
+  <button onclick="displayBookmarks()">즐겨찾기 목록♥️</button>
+  
+  <!-- 단어 목록 테이블 -->
+  <table id="word-table"></table>
+  <!-- 퀴즈 전용 영역 -->
+  <div id="quiz-container"></div>
+  
+  <script>
+    // 단어 데이터 배열 (필요에 따라 단어 추가 가능)
+      const data = [{"han": "米", "py": "mǐ", "ko": "쌀"}, {"han": "护照", "py": "hùzhào", "ko": "여권"}, {"han": "宾馆", "py": "bīnguǎn", "ko": "호텔"}, {"han": "非常", "py": "fēicháng", "ko": "매우"}, {"han": "见面", "py": "jiànmiàn", "ko": "만나다"}, {"han": "北京", "py": "Běijīng", "ko": "베이징"}, {"han": "多少", "py": "duōshǎo", "ko": "다소"}, {"han": "节日", "py": "jiérì", "ko": "휴일"}, {"han": "讲", "py": "jiǎng", "ko": "말하다"}, {"han": "爱好", "py": "àihào", "ko": "취미"}, {"han": "词典", "py": "cídiǎn", "ko": "사전"}, {"han": "的", "py": "de", "ko": "-의, 한"}, {"han": "回", "py": "huí", "ko": "돌아가다"}, {"han": "了", "py": "le", "ko": "-했다"}, {"han": "公司", "py": "gōngsī", "ko": "회사"}, {"han": "街道", "py": "jiēdào", "ko": "거리"}, {"han": "咖啡", "py": "kāfēi", "ko": "커피"}, {"han": "冰箱", "py": "bīngxiāng", "ko": "냉장고"}, {"han": "百", "py": "bǎi", "ko": "100"}, {"han": "房间", "py": "fángjiān", "ko": "방"}, {"han": "健康", "py": "jiànkāng", "ko": "건강하다"}, {"han": "老", "py": "lǎo", "ko": "늙다"}, {"han": "联系", "py": "liánxì", "ko": "연락하다"}, {"han": "爸爸", "py": "bàba", "ko": "아빠"}, {"han": "回答", "py": "huídá", "ko": "대답하다"}, {"han": "累", "py": "lèi", "ko": "피곤하다"}, {"han": "故事", "py": "gùshi", "ko": "이야기"}, {"han": "路", "py": "lù", "ko": "길"}, {"han": "几乎", "py": "jīhū", "ko": "거의"}, {"han": "会", "py": "huì", "ko": "할 수 있다"}, {"han": "考试", "py": "kǎoshì", "ko": "시험"}, {"han": "出租车", "py": "chūzūchē", "ko": "택시"}, {"han": "妈妈", "py": "māma", "ko": "엄마"}, {"han": "打算", "py": "dǎsuàn", "ko": "계획하다"}, {"han": "杯子", "py": "bēizi", "ko": "잔"}, {"han": "打电话", "py": "dǎ diànhuà", "ko": "전화하다"}, {"han": "放心", "py": "fàngxīn", "ko": "안심하다"}, {"han": "历史", "py": "lìshǐ", "ko": "역사"}, {"han": "草", "py": "cǎo", "ko": "풀"}, {"han": "经理", "py": "jīnglǐ", "ko": "사장님"}, {"han": "礼物", "py": "lǐwù", "ko": "선물"}, {"han": "除了", "py": "chúle", "ko": "-이외에"}, {"han": "多", "py": "duō", "ko": "많다"}, {"han": "超市", "py": "chāoshì", "ko": "마트"}, {"han": "记得", "py": "jìde", "ko": "기억하다"}, {"han": "没有", "py": "méiyǒu", "ko": "없다"}, {"han": "到", "py": "dào", "ko": "도달하다"}, {"han": "干净", "py": "gānjìng", "ko": "깨끗하다"}, {"han": "句子", "py": "jùzi", "ko": "문장"}, {"han": "黑板", "py": "hēibǎn", "ko": "칠판"}, {"han": "环境", "py": "huánjìng", "ko": "환경"}, {"han": "别", "py": "bié", "ko": "-하지 마라"}, {"han": "近", "py": "jìn", "ko": "가깝다"}, {"han": "过去", "py": "guòqù", "ko": "과거"}, {"han": "觉得", "py": "juéde", "ko": "-생각에"}, {"han": "段", "py": "duàn", "ko": "단락"}, {"han": "多么", "py": "duōme", "ko": "얼마나"}, {"han": "办法", "py": "bànfǎ", "ko": "방법"}, {"han": "明白", "py": "míngbai", "ko": "이해하다"}, {"han": "绿", "py": "lǜ", "ko": "녹색"}, {"han": "空调", "py": "kōngtiáo", "ko": "에어컨"}, {"han": "成绩", "py": "chéngjì", "ko": "성적"}, {"han": "帮忙", "py": "bāngmáng", "ko": "돕다"}, {"han": "卖", "py": "mài", "ko": "팔다"}, {"han": "邻居", "py": "línjū", "ko": "이웃"}, {"han": "方便", "py": "fāngbiàn", "ko": "편리하다"}, {"han": "懂", "py": "dǒng", "ko": "이해하다"}, {"han": "裤子课", "py": "kùzikè", "ko": "바지과목"}, {"han": "大", "py": "dà", "ko": "크다"}, {"han": "电视", "py": "diànshì", "ko": "티비"}, {"han": "服务员", "py": "fúwùyuán", "ko": "종업원"}, {"han": "喝", "py": "hē", "ko": "마시다"}, {"han": "买", "py": "mǎi", "ko": "사다"}, {"han": "决定", "py": "juédìng", "ko": "결정하다"}, {"han": "号", "py": "hào", "ko": "번호"}, {"han": "公斤", "py": "gōngjīn", "ko": "킬로그램"}, {"han": "附近", "py": "fùjìn", "ko": "근처"}, {"han": "妹妹", "py": "mèimei", "ko": "여동생"}, {"han": "了解", "py": "liǎojiě", "ko": "이해하다"}, {"han": "九", "py": "jiǔ", "ko": "숫자9"}, {"han": "快", "py": "kuài", "ko": "빨리"}, {"han": "筷子", "py": "kuàizi", "ko": "젓가락"}, {"han": "换", "py": "huàn", "ko": "교환하다"}, {"han": "解决", "py": "jiějué", "ko": "해결하다"}, {"han": "黄河", "py": "Huánghé", "ko": "황하"}, {"han": "笔记本", "py": "bǐjìběn", "ko": "노트"}, {"han": "但是", "py": "dànshì", "ko": "하지만"}, {"han": "办公室", "py": "bàngōngshì", "ko": "사무실"}, {"han": "个", "py": "gè", "ko": "(양사) 개"}, {"han": "开", "py": "kāi", "ko": "켜다"}, {"han": "满意", "py": "mǎnyì", "ko": "만족하다"}, {"han": "高兴", "py": "gāoxìng", "ko": "기쁘다"}, {"han": "东西", "py": "dōngxi", "ko": "물건"}, {"han": "关", "py": "guān", "ko": "끄다"}, {"han": "飞机", "py": "fēijī", "ko": "비행기"}, {"han": "公园", "py": "gōngyuán", "ko": "공원"}, {"han": "差", "py": "chà", "ko": "차이나다"}, {"han": "机场", "py": "jīchǎng", "ko": "공항"}, {"han": "锻炼", "py": "duànliàn", "ko": "단련하다"}, {"han": "黑", "py": "hēi", "ko": "어둡다"}, {"han": "蛋糕", "py": "dàngāo", "ko": "케이크"}, {"han": "后来", "py": "hòulái", "ko": "미래"}, {"han": "检查", "py": "jiǎnchá", "ko": "검사하다"}, {"han": "教", "py": "jiāo", "ko": "가르치다"}, {"han": "读", "py": "dú", "ko": "읽다"}, {"han": "鸡蛋", "py": "jīdàn", "ko": "계란"}, {"han": "聪明", "py": "cōngming", "ko": "똑똑하다"}, {"han": "开始", "py": "kāishǐ", "ko": "시작하다"}, {"han": "介绍", "py": "jièshào", "ko": "소개하다"}, {"han": "复习", "py": "fùxí", "ko": "복습하다"}, {"han": "东", "py": "dōng", "ko": "동쪽"}, {"han": "地", "py": "de", "ko": "-하게, -히"}, {"han": "变化", "py": "biànhuà", "ko": "변화하다"}, {"han": "刻", "py": "kè", "ko": "15분"}, {"han": "没关系", "py": "méiguānxi", "ko": "괜찮다"}, {"han": "后面", "py": "hòumiàn", "ko": "뒷면"}, {"han": "借", "py": "jiè", "ko": "빌리다"}, {"han": "打扫", "py": "dǎsǎo", "ko": "청소하다"}, {"han": "北方", "py": "běifāng", "ko": "북방"}, {"han": "明天", "py": "míngtiān", "ko": "내일"}, {"han": "阿姨", "py": "āyí", "ko": "이모"}, {"han": "对不起", "py": "duìbuqǐ", "ko": "미안하다"}, {"han": "旅游", "py": "lǚyóu", "ko": "여행"}, {"han": "矮", "py": "ǎi", "ko": "작다"}, {"han": "层", "py": "céng", "ko": "층"}, {"han": "害怕", "py": "hàipà", "ko": "무섭다"}, {"han": "出", "py": "chū", "ko": "나가다"}, {"han": "还", "py": "hái", "ko": "여전히, 아직"}, {"han": "弟弟", "py": "dìdi", "ko": "남동생"}, {"han": "欢迎", "py": "huānyíng", "ko": "환영하다"}, {"han": "吃", "py": "chī", "ko": "먹다"}, {"han": "比赛", "py": "bǐsài", "ko": "시합하다"}, {"han": "好吃", "py": "hǎochī", "ko": "맛있다"}, {"han": "老师", "py": "lǎoshī", "ko": "선생님"}, {"han": "次穿", "py": "cì chuān", "ko": "차례 입다"}, {"han": "很", "py": "hěn", "ko": "매우"}, {"han": "等", "py": "děng", "ko": "기다리다"}, {"han": "关系", "py": "guānxi", "ko": "관계"}, {"han": "经常", "py": "jīngcháng", "ko": "자주"}, {"han": "国家", "py": "guójiā", "ko": "국가"}, {"han": "久", "py": "jiǔ", "ko": "오래되다"}, {"han": "动物", "py": "dòngwù", "ko": "동물"}, {"han": "面包", "py": "miànbāo", "ko": "빵"}, {"han": "不客气", "py": "bú kèqi", "ko": "천만에요"}, {"han": "衬衫", "py": "chènshān", "ko": "셔츠"}, {"han": "感冒", "py": "gǎnmào", "ko": "감기"}, {"han": "角", "py": "jiǎo", "ko": "뿔, 돈 세는 단위"}, {"han": "脚", "py": "jiǎo", "ko": "발"}, {"han": "两", "py": "liǎng", "ko": "둘"}, {"han": "饭店", "py": "fàndiàn", "ko": "식당"}, {"han": "极", "py": "jí", "ko": "극도의"}, {"han": "还", "py": "huán", "ko": "바꾸다"}, {"han": "错", "py": "cuò", "ko": "틀리다"}, {"han": "可爱", "py": "kě'ài", "ko": "귀엽다"}, {"han": "担心", "py": "dānxīn", "ko": "염려하다"}, {"han": "件", "py": "jiàn", "ko": "(양사) 건"}, {"han": "比较", "py": "bǐjiào", "ko": "비교적"}, {"han": "留学", "py": "liúxué", "ko": "유학"}, {"han": "菜", "py": "cài", "ko": "요리"}, {"han": "零", "py": "líng", "ko": "0"}, {"han": "节目", "py": "jiémù", "ko": "프로그램"}, {"han": "包", "py": "bāo", "ko": "포장하다"}, {"han": "离", "py": "lí", "ko": "-에서부터"}, {"han": "刮风", "py": "guāfēng", "ko": "바람불다"}, {"han": "迟到", "py": "chídào", "ko": "지각하다"}, {"han": "简单", "py": "jiǎndān", "ko": "간단하다"}, {"han": "就", "py": "jiù", "ko": "곧, 즉시"}, {"han": "叫", "py": "jiào", "ko": "불리다"}, {"han": "地图", "py": "dìtú", "ko": "지도"}, {"han": "告诉", "py": "gàosu", "ko": "알리다"}, {"han": "帮助", "py": "bāngzhù", "ko": "돕다"}, {"han": "分钟", "py": "fēnzhōng", "ko": "분"}, {"han": "而且", "py": "érqiě", "ko": "게다가"}, {"han": "公共汽车", "py": "gōnggòng qìchē", "ko": "버스"}, {"han": "画", "py": "huà", "ko": "그림"}, {"han": "和", "py": "hé", "ko": "-와"}, {"han": "更", "py": "gèng", "ko": "훨씬, 더욱"}, {"han": "冬", "py": "dōng", "ko": "겨울"}, {"han": "发现", "py": "fāxiàn", "ko": "발견하다"}, {"han": "可能", "py": "kěnéng", "ko": "아마도"}, {"han": "发烧", "py": "fāshāo", "ko": "열나다"}, {"han": "电梯", "py": "diàntī", "ko": "엘리베이터"}, {"han": "接", "py": "jiē", "ko": "받다"}, {"han": "爱", "py": "ài", "ko": "사랑하다"}, {"han": "季节", "py": "jìjié", "ko": "계절"}, {"han": "结婚", "py": "jiéhūn", "ko": "결혼하다"}, {"han": "比", "py": "bǐ", "ko": "-보다"}, {"han": "点", "py": "diǎn", "ko": "시간"}, {"han": "今天", "py": "jīntiān", "ko": "오늘"}, {"han": "必须", "py": "bìxū", "ko": "반드시"}, {"han": "经过", "py": "jīngguò", "ko": "경험하다"}, {"han": "灯", "py": "dēng", "ko": "등불"}, {"han": "结束", "py": "jiéshù", "ko": "끝내다"}, {"han": "狗", "py": "gǒu", "ko": "강아지"}, {"han": "班", "py": "bān", "ko": "반, 조"}, {"han": "都", "py": "dōu", "ko": "모두"}, {"han": "或者", "py": "huòzhě", "ko": "혹은"}, {"han": "船", "py": "chuán", "ko": "배"}, {"han": "唱歌", "py": "chànggē", "ko": "노래하다"}, {"han": "来", "py": "lái", "ko": "오다"}, {"han": "不但", "py": "búdàn", "ko": "-일 뿐만 아니라"}, {"han": "本", "py": "běn", "ko": "(양사) 권"}, {"han": "教室", "py": "jiàoshì", "ko": "교실"}, {"han": "高", "py": "gāo", "ko": "높다"}, {"han": "发", "py": "fā", "ko": "보내다"}, {"han": "花", "py": "huā", "ko": "꽃"}, {"han": "对", "py": "duì", "ko": "맞다, -에 대해"}, {"han": "茶", "py": "chá", "ko": "(마시는) 차"}, {"han": "参加", "py": "cānjiā", "ko": "참가하다"}, {"han": "从", "py": "cóng", "ko": "-부터"}, {"han": "把", "py": "bǎ", "ko": "-을, 를"}, {"han": "大家", "py": "dàjiā", "ko": "여러분"}, {"han": "过", "py": "guò", "ko": "지나가다"}, {"han": "才", "py": "cái", "ko": "비로소"}, {"han": "脸", "py": "liǎn", "ko": "얼굴"}, {"han": "门", "py": "mén", "ko": "문"}, {"han": "姐姐", "py": "jiějie", "ko": "누나"}, {"han": "火车站", "py": "huǒchēzhàn", "ko": "기차역"}, {"han": "楼", "py": "lóu", "ko": "층"}, {"han": "跟", "py": "gēn", "ko": "-와"}, {"han": "带", "py": "dài", "ko": "지니다"}, {"han": "关心", "py": "guānxīn", "ko": "관심"}, {"han": "吧", "py": "ba", "ko": "-하자"}, {"han": "感兴趣", "py": "gǎn xìngqù", "ko": "관심이 있다"}, {"han": "家", "py": "jiā", "ko": "집"}, {"han": "看", "py": "kàn", "ko": "보다"}, {"han": "第一", "py": "dì yī", "ko": "첫 번째"}, {"han": "地铁", "py": "dìtiě", "ko": "지하철"}, {"han": "口", "py": "kǒu", "ko": "입"}, {"han": "被", "py": "bèi", "ko": "-의해"}, {"han": "工作", "py": "gōngzuò", "ko": "일하다"}, {"han": "个子", "py": "gèzi", "ko": "키"}, {"han": "米饭", "py": "mǐfàn", "ko": "쌀밥"}, {"han": "孩子", "py": "háizi", "ko": "아이"}, {"han": "练习", "py": "liànxí", "ko": "연습하다"}, {"han": "春", "py": "chūn", "ko": "봄"}, {"han": "名字", "py": "míngzi", "ko": "이름"}, {"han": "电影", "py": "diànyǐng", "ko": "영화"}, {"han": "哭", "py": "kū", "ko": "울다"}, {"han": "根据", "py": "gēnjù", "ko": "근거하여"}, {"han": "看见", "py": "kànjiàn", "ko": "만나다"}, {"han": "块", "py": "kuài", "ko": "(양사) 덩어리, 돈 단위"}, {"han": "短", "py": "duǎn", "ko": "짧다"}, {"han": "冷", "py": "lěng", "ko": "춥다"}, {"han": "几", "py": "jǐ", "ko": "몇"}, {"han": "电子邮件", "py": "diànzǐ yóujiàn", "ko": "이메일"}, {"han": "忙", "py": "máng", "ko": "바쁘다"}, {"han": "猫", "py": "māo", "ko": "고양이"}, {"han": "六", "py": "liù", "ko": "6"}, {"han": "可以", "py": "kěyǐ", "ko": "할 수 있다"}, {"han": "旧", "py": "jiù", "ko": "오래되다"}, {"han": "得", "py": "de", "ko": "정도보어"}, {"han": "别人", "py": "biéren", "ko": "다른 사람"}, {"han": "打篮球", "py": "dǎ lánqiú", "ko": "농구하다"}, {"han": "儿子", "py": "érzi", "ko": "아들"}, {"han": "电脑", "py": "diànnǎo", "ko": "컴퓨터"}, {"han": "不", "py": "bù", "ko": "아니다"}, {"han": "辆", "py": "liàng", "ko": "(양사) 대"}, {"han": "快乐", "py": "kuàilè", "ko": "기쁘다"}, {"han": "好", "py": "hǎo", "ko": "좋다"}, {"han": "放", "py": "fàng", "ko": "놓다"}, {"han": "客人", "py": "kèrén", "ko": "손님"}, {"han": "菜单", "py": "càidān", "ko": "메뉴판"}, {"han": "进", "py": "jìn", "ko": "들어가다"}, {"han": "鼻子", "py": "bízi", "ko": "코"}, {"han": "长", "py": "cháng", "ko": "길다"}, {"han": "白", "py": "bái", "ko": "흰색"}, {"han": "八", "py": "bā", "ko": "숫자 8"}, {"han": "渴", "py": "kě", "ko": "목마르다"}, {"han": "关于", "py": "guānyú", "ko": "-관해서"}, {"han": "还是", "py": "háishi", "ko": "아직"}, {"han": "饱", "py": "bǎo", "ko": "배부르다"}, {"han": "会议", "py": "huìyì", "ko": "회의"}, {"han": "刚才", "py": "gāngcái", "ko": "방금, 막"}, {"han": "里", "py": "lǐ", "ko": "속, 안"}, {"han": "城市", "py": "chéngshì", "ko": "도시"}, {"han": "哥哥", "py": "gēge", "ko": "형, 오빠"}, {"han": "给贵", "py": "gěi guì", "ko": "-주다, -에게 비싸다"}, {"han": "红", "py": "hóng", "ko": "빨갛다"}, {"han": "二", "py": "èr", "ko": "숫자 2"}, {"han": "帽子", "py": "màozi", "ko": "모자"}, {"han": "吗", "py": "ma", "ko": "-입니까?"}, {"han": "分", "py": "fēn", "ko": "(시간) 분"}, {"han": "饿", "py": "è", "ko": "배고프다"}, {"han": "半", "py": "bàn", "ko": "절반"}, {"han": "蓝", "py": "lán", "ko": "파란색"}, {"han": "当然", "py": "dāngrán", "ko": "당연하다"}, {"han": "聊天", "py": "liáotiān", "ko": "이야기하다"}, {"han": "慢", "py": "màn", "ko": "느리다"}, {"han": "汉语", "py": "Hànyǔ", "ko": "중국어"}, {"han": "地方", "py": "dìfang", "ko": "장소"}, {"han": "坏", "py": "huài", "ko": "고장나다"}, {"han": "每", "py": "měi", "ko": "매번"}, {"han": "安静", "py": "ānjìng", "ko": "안정적이다"}, {"han": "机会", "py": "jīhuì", "ko": "기회"}, {"han": "报纸", "py": "bàozhǐ", "ko": "신문"}];
+    
+    let shuffled = [];
+    let original = [];
+    let bookmarks = []; // 즐겨찾기 저장 배열
+
+    // 단어 보기, 섞기, 정답 보기 함수들
+    function shuffleWords() {
+      shuffled = [...data];
+      for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+      }
+      original = [...shuffled];
+      displayTable('ko');
+      // 퀴즈 영역 숨김
+      document.getElementById('quiz-container').innerHTML = "";
+    }
+
+    function showAnswers() {
+      if (shuffled.length === 0) {
+        shuffled = [...data];
+        original = [...shuffled];
+      }
+      displayTable('full');
+      // 퀴즈 영역 숨김
+      document.getElementById('quiz-container').innerHTML = "";
+    }
+
+    function displayWords() {
+      if (shuffled.length === 0) {
+        shuffled = [...data];
+        original = [...shuffled];
+      }
+      displayTable('ko');
+      // 퀴즈 영역 숨김
+      document.getElementById('quiz-container').innerHTML = "";
+    }
+
+    // displayTable 함수: 'ko' 모드는 뜻만, 'full' 모드는 한어, 병음, 뜻과 북마크/발음 버튼 포함
+    function displayTable(mode) {
+      const table = document.getElementById('word-table');
+      table.innerHTML = '';
+      for (let i = 0; i < shuffled.length; i += 3) {
+        const row = document.createElement('tr');
+        for (let j = 0; j < 3; j++) {
+          const cell = document.createElement('td');
+          const word = shuffled[i + j];
+          if (word) {
+            if (mode === 'ko') {
+              cell.textContent = `${i + j + 1}. ${word.ko}`;
+            } else if (mode === 'full') {
+              cell.innerHTML = `${i + j + 1}. ${word.han} (${word.py}) : ${word.ko} `;
+              // 북마크 버튼 추가
+              let bookmarkBtn = document.createElement("button");
+              bookmarkBtn.id = `bookmark-${i+j}`;
+              bookmarkBtn.textContent = isBookmarked(word) ? "♥️" : "🤍";
+              bookmarkBtn.onclick = function() { toggleBookmark(word, bookmarkBtn.id); };
+              cell.appendChild(bookmarkBtn);
+              // TTS 발음 버튼 추가
+              let ttsBtn = document.createElement("button");
+              ttsBtn.textContent = "🔊";
+              ttsBtn.onclick = function() { playPronunciation(word.han); };
+              cell.appendChild(ttsBtn);
+            }
+          }
+          row.appendChild(cell);
+        }
+        table.appendChild(row);
+      }
+    }
+
+    // 즐겨찾기 상태 확인 함수
+    function isBookmarked(word) {
+      return bookmarks.some(b => b.han === word.han);
+    }
+
+    // 북마크 토글 함수
+    function toggleBookmark(word, btnID) {
+      const index = bookmarks.findIndex(w => w.han === word.han);
+      const btn = document.getElementById(btnID);
+      if (index === -1) {
+        bookmarks.push(word);
+        if(btn) btn.textContent = "♥️";
+      } else {
+        bookmarks.splice(index, 1);
+        if(btn) btn.textContent = "🤍";
+      }
+    }
+
+    // 즐겨찾기 목록 표시 함수
+    function displayBookmarks() {
+      const table = document.getElementById('word-table');
+      table.innerHTML = '';
+      if (bookmarks.length === 0) {
+        table.innerHTML = "<tr><td>즐겨찾기된 단어가 없습니다.</td></tr>";
+        return;
+      }
+      for (let i = 0; i < bookmarks.length; i += 3) {
+        const row = document.createElement('tr');
+        for (let j = 0; j < 3; j++) {
+          const cell = document.createElement('td');
+          const word = bookmarks[i + j];
+          if (word) {
+            cell.innerHTML = `${i + j + 1}. ${word.han} (${word.py}) : ${word.ko} `;
+            // 즐겨찾기 상태이므로 북마크 버튼은 ♥️ (클릭 시 해제)
+            let bookmarkBtn = document.createElement("button");
+            bookmarkBtn.id = `bookmark-bookmark-${i+j}`;
+            bookmarkBtn.textContent = "♥️";
+            bookmarkBtn.onclick = function() { 
+              toggleBookmark(word, bookmarkBtn.id); 
+              displayBookmarks();
+            };
+            cell.appendChild(bookmarkBtn);
+            // TTS 버튼 추가
+            let ttsBtn = document.createElement("button");
+            ttsBtn.textContent = "🔊";
+            ttsBtn.onclick = function() { playPronunciation(word.han); };
+            cell.appendChild(ttsBtn);
+          }
+          row.appendChild(cell);
+        }
+        table.appendChild(row);
+      }
+      // 퀴즈 영역 숨김
+      document.getElementById('quiz-container').innerHTML = "";
+    }
+
+    // TTS 발음 함수 (Chinese: zh-CN)
+    function playPronunciation(text) {
+      if ('speechSynthesis' in window) {
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = "zh-CN";
+        window.speechSynthesis.speak(utterance);
+      } else {
+        alert("TTS 기능을 지원하지 않는 브라우저입니다.");
+      }
+    }
+
+    // ---- 단어 퀴즈 모드 구현 ----
+    function startQuiz() {
+      // 단어 목록 영역 숨기고 퀴즈 영역 표시
+      document.getElementById('word-table').innerHTML = "";
+      displayQuizQuestion();
+    }
+
+    function displayQuizQuestion() {
+      const container = document.getElementById('quiz-container');
+      container.innerHTML = ""; // 이전 문제 제거
+
+      // 무작위 정답 단어 선택
+      const correctWord = data[Math.floor(Math.random() * data.length)];
+
+      // 정답과 함께 3지선다 옵션 생성
+      let options = [correctWord];
+      while (options.length < 3) {
+        const opt = data[Math.floor(Math.random() * data.length)];
+        if (opt.han !== correctWord.han && !options.some(o => o.han === opt.han)) {
+          options.push(opt);
+        }
+      }
+      // 옵션 순서 랜덤화
+      for (let i = options.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [options[i], options[j]] = [options[j], options[i]];
+      }
+
+      // 문제(뜻) 출력
+      const questionElem = document.createElement("h2");
+      questionElem.textContent = `문제: ${correctWord.ko}`;
+      container.appendChild(questionElem);
+
+      // 각 옵션 버튼 생성
+      options.forEach(option => {
+        const btn = document.createElement("button");
+        btn.style.display = "block";
+        btn.style.margin = "10px auto";
+        btn.textContent = `${option.han} (${option.py})`;
+        btn.onclick = function() {
+          if (option.han === correctWord.han) {
+            // 정답일 경우 다음 문제로 전환
+            displayQuizQuestion();
+          } else {
+            let msg = document.getElementById("quiz-message");
+            if (!msg) {
+              msg = document.createElement("p");
+              msg.id = "quiz-message";
+              msg.style.color = "red";
+              container.appendChild(msg);
+            }
+            msg.textContent = "틀렸어요!😵";
+          }
+        };
+        container.appendChild(btn);
+      });
+    }
+  </script>
+</body>
+</html>
