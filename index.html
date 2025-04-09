@@ -2,6 +2,7 @@
 <html lang="zh">
 <head>
   <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>HSK 단어장</title>
   <style>
     body {
@@ -209,14 +210,36 @@
 
     // TTS 발음 함수 (Chinese: zh-CN)
     function playPronunciation(text) {
-      if ('speechSynthesis' in window) {
-        const utterance = new SpeechSynthesisUtterance(text);
-        utterance.lang = "zh-CN";
+  if ('speechSynthesis' in window) {
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = "zh-CN";
+    
+    // voiceschanged 이벤트를 통해 음성이 준비되면 원하는 음성을 선택하도록 함.
+    let voices = window.speechSynthesis.getVoices();
+    if (!voices || voices.length === 0) {
+      // voices가 아직 로드되지 않았다면, voiceschanged 이벤트에 등록
+      window.speechSynthesis.onvoiceschanged = () => {
+        let updatedVoices = window.speechSynthesis.getVoices();
+        const zhVoice = updatedVoices.find(v => v.lang.indexOf("zh") > -1);
+        if (zhVoice) {
+          utterance.voice = zhVoice;
+          utterance.rate = 0.8
+        }
         window.speechSynthesis.speak(utterance);
-      } else {
-        alert("TTS 기능을 지원하지 않는 브라우저입니다.");
+      };
+    } else {
+      // 이미 voices가 준비된 상태라면, 바로 선택
+      const zhVoice = voices.find(v => v.lang.indexOf("zh") > -1);
+      if (zhVoice) {
+        utterance.voice = zhVoice;
+        utterance.rate = 0.8
       }
+      window.speechSynthesis.speak(utterance);
     }
+  } else {
+    alert("TTS 기능을 지원하지 않는 브라우저입니다.");
+  }
+}
 
     // ---- 단어 퀴즈 모드 구현 ----
     function startQuiz() {
