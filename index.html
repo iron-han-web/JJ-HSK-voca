@@ -76,6 +76,11 @@
   <button onclick="showAnswers()">정답 보기💯</button>
   <button onclick="startQuiz()">단어 퀴즈🎯</button>
   <button onclick="displayBookmarks()">즐겨찾기 목록♥️</button>
+
+  <div id="search-area" style="margin-bottom: 20px;">
+    <input type="text" id="search-input" placeholder="찾고 싶은 단어 뜻을 입력해!" style="padding: 8px; width: 80%; max-width: 400px;">
+    <button onclick="searchWord()">검색🔍</button>
+  </div>
   
   <!-- 단어 목록과 퀴즈 영역 -->
   <table id="word-table"></table>
@@ -579,6 +584,44 @@
         };
         container.appendChild(btn);
       });
+    }
+    
+    function searchWord() {
+      const query = document.getElementById('search-input').value.trim().toLowerCase();
+      const results = data.filter(word => word.ko.toLowerCase().includes(query));
+      displaySearchResults(results);
+    }
+    
+    function displaySearchResults(results) {
+      const table = document.getElementById('word-table');
+      table.innerHTML = '';
+    
+      if (results.length === 0) {
+        table.innerHTML = "<tr><td>일치하는 단어가 없습니다.</td></tr>";
+        return;
+      }
+    
+      for (let i = 0; i < results.length; i += 3) {
+        const row = document.createElement('tr');
+        for (let j = 0; j < 3; j++) {
+          const cell = document.createElement('td');
+          const word = results[i + j];
+          if (word) {
+            cell.innerHTML = `${i + j + 1}. ${word.han} (${word.py}) : ${word.ko} `;
+            let bookmarkBtn = document.createElement("button");
+            bookmarkBtn.id = `bookmark-search-${i+j}`;
+            bookmarkBtn.textContent = isBookmarked(word) ? "♥️" : "🤍";
+            bookmarkBtn.onclick = function() { toggleBookmark(word, bookmarkBtn.id); };
+            cell.appendChild(bookmarkBtn);
+            let ttsBtn = document.createElement("button");
+            ttsBtn.textContent = "🔊";
+            ttsBtn.onclick = function() { playPronunciation(word.han); };
+            cell.appendChild(ttsBtn);
+          }
+          row.appendChild(cell);
+        }
+        table.appendChild(row);
+      }
     }
   </script>
 </body>
